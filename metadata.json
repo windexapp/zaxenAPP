@@ -1,0 +1,6 @@
+{
+  "name": "ZAXENBOOSTER - Windows PC & Gaming Optimizer",
+  "description": "Profesyonel Windows PC ve Oyun Optimizasyon Sistemi. Donanım monitörü, hızlı boost, RAM/Disk temizleme, FPS analizi ve güvenli geri alma altyapısı.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
