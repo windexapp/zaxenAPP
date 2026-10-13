@@ -2,8 +2,12 @@ export type TabType =
   | 'dashboard' 
   | 'analysis' 
   | 'boost' 
-  | 'nvidia'
-  | 'games' 
+  | 'catalog'
+  | 'games'
+  | 'health'
+  | 'drivers'
+  | 'bios'
+  | 'nvidia' 
   | 'fps' 
   | 'tools' 
   | 'backups' 
@@ -153,10 +157,13 @@ export interface GameItem {
   path: string;
   sizeGB: number;
   profile: GameProfile;
-  lastPlayed?: string;
   icon?: string;
   steamAppId?: number;
   imageUrl?: string;
+  launchOptions?: string;
+  configFileTweak?: string;
+  isWindowsPriorityOnly?: boolean;
+  lastPlayed?: string;
 }
 
 export interface FpsRecord {
@@ -206,4 +213,18 @@ export interface SmartNotification {
   timestamp: string;
   actionText?: string;
   onAction?: () => void;
+}
+
+declare global {
+  interface Window {
+    desktopApi?: {
+      isDesktop: boolean;
+      platform: string;
+      getHwid: () => Promise<string>;
+      executeCommand: (cmd: string) => Promise<{ success: boolean; output: string }>;
+      cleanRam: () => Promise<{ success: boolean }>;
+      writeRegistry: (options: { path: string; name: string; value: string | number; type?: string }) => Promise<{ success: boolean }>;
+      checkAdmin?: () => Promise<{ isAdmin: boolean }>;
+    };
+  }
 }

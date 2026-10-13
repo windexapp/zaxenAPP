@@ -6,6 +6,10 @@ import { BackgroundAmbient } from './components/common/BackgroundAmbient';
 import { SmartAlertBanner } from './components/common/SmartAlertBanner';
 import { CompactHudOverlay } from './components/common/CompactHudOverlay';
 import { DashboardView } from './components/views/DashboardView';
+import { CatalogView } from './components/views/CatalogView';
+import { HealthView } from './components/views/HealthView';
+import { DriversDiskView } from './components/views/DriversDiskView';
+import { BiosGuideView } from './components/views/BiosGuideView';
 import { AnalysisView } from './components/views/AnalysisView';
 import { BoostView } from './components/views/BoostView';
 import { NvidiaView } from './components/views/NvidiaView';
@@ -155,6 +159,28 @@ export default function App() {
               />
             )}
 
+            {currentTab === 'catalog' && (
+              <CatalogView license={license} />
+            )}
+
+            {currentTab === 'games' && (
+              <GamesView 
+                accentColor={settings.accentColor} 
+              />
+            )}
+
+            {currentTab === 'health' && (
+              <HealthView />
+            )}
+
+            {currentTab === 'drivers' && (
+              <DriversDiskView />
+            )}
+
+            {currentTab === 'bios' && (
+              <BiosGuideView />
+            )}
+
             {currentTab === 'analysis' && (
               <AnalysisView />
             )}
@@ -169,12 +195,6 @@ export default function App() {
 
             {currentTab === 'nvidia' && (
               <NvidiaView />
-            )}
-
-            {currentTab === 'games' && (
-              <GamesView 
-                accentColor={settings.accentColor} 
-              />
             )}
 
             {currentTab === 'fps' && (
@@ -216,7 +236,7 @@ export default function App() {
         }}
       />
 
-      {/* 7. New Master Admin Panel Modal (Credentials: zaxen001 / 12344321Ll) */}
+      {/* 7. Master Admin Panel Modal */}
       <AdminPanelModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}

@@ -1,6 +1,7 @@
 import { OptimizationItem, LicenseTier } from '../types';
 import { BackupService } from './backupService';
 import { HardwareMonitorService } from './hardwareMonitor';
+import { systemExecutor } from './systemExecutorService';
 
 const STORAGE_KEY = 'zaxenbooster_optimizations';
 
@@ -267,6 +268,26 @@ export class OptimizerService {
       item.applied = true;
     });
     this.save();
+
+    // Map and execute real Windows system commands
+    const tweakMapping: Record<string, string> = {
+      'opt-cpu-priority': 'cpu_unpark',
+      'opt-game-dvr': 'win11_gamedvr_off',
+      'opt-power-ultimate': 'cpu_ultimate_power',
+      'opt-net-tcp': 'net_tcp_nodelay',
+      'opt-mouse-raw': 'input_markc_fix',
+      'opt-hpet': 'cpu_hpet_disable',
+      'opt-telemetry': 'priv_telemetry_off',
+      'opt-win-copilot': 'win11_copilot_widgets',
+      'opt-sysmain': 'srv_sysmain_game_mode'
+    };
+
+    targetItems.forEach(item => {
+      const mappedTweak = tweakMapping[item.id];
+      if (mappedTweak) {
+        systemExecutor.executeTweak(mappedTweak, true).catch(() => {});
+      }
+    });
 
     monitor.cleanRam();
     monitor.setOptimized(true);

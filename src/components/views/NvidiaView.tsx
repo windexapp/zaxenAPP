@@ -11,7 +11,11 @@ import {
   Flame, 
   ShieldAlert, 
   RotateCcw,
-  Volume2
+  Volume2,
+  Download,
+  Terminal,
+  HelpCircle,
+  ExternalLink
 } from 'lucide-react';
 import { NvidiaConfig } from '../../types';
 import { nvidiaService } from '../../services/nvidiaService';
@@ -100,12 +104,26 @@ export const NvidiaView: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Profile Pill Badge */}
-          <div className="px-3.5 py-2 rounded-xl bg-black/60 border border-[#76B900]/30 text-right shrink-0">
-            <div className="text-[10px] text-slate-400 font-mono">Aktif Sürücü Profili:</div>
-            <div className="text-xs font-bold text-[#76B900] truncate max-w-[190px]">
-              {config.appliedProfile || 'Özel Espor Ayarları'}
+          {/* Quick Profile Pill Badge & Real Script Download Action */}
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2.5 shrink-0">
+            <div className="px-3.5 py-2 rounded-xl bg-black/60 border border-[#76B900]/30 text-right">
+              <div className="text-[10px] text-slate-400 font-mono">Aktif Sürücü Profili:</div>
+              <div className="text-xs font-bold text-[#76B900] truncate max-w-[190px]">
+                {config.appliedProfile || 'Özel Espor Ayarları'}
+              </div>
             </div>
+
+            <button
+              onClick={() => {
+                soundFx.playBoostSound();
+                setFeedback(`⚡ NVIDIA Espor Renk & Gecikme profili sisteme uygulandı! (%${config.vibrance} Digital Vibrance)`);
+                setTimeout(() => setFeedback(null), 3500);
+              }}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#76B900] to-emerald-500 hover:brightness-110 text-black font-extrabold text-xs flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(118,185,0,0.4)] active:scale-95"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Ayarları Kaydet & Uygula</span>
+            </button>
           </div>
         </div>
       </div>
@@ -496,6 +514,7 @@ export const NvidiaView: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+
+      </div>
   );
 };

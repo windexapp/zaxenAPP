@@ -213,6 +213,10 @@ export class HardwareMonitorService {
 
   // Triggered when user performs RAM Clean
   public cleanRam(): { beforeGB: number; afterGB: number; freedGB: number } {
+    if (typeof window !== 'undefined' && window.desktopApi?.cleanRam) {
+      window.desktopApi.cleanRam().catch(() => {});
+    }
+
     const beforeGB = this.metrics.ram.usedGB;
     const targetReduction = Number((2.8 + Math.random() * 1.6).toFixed(1));
     const afterGB = Math.max(3.5, Number((beforeGB - targetReduction).toFixed(1)));

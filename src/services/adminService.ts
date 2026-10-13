@@ -1,8 +1,8 @@
 import { AdminKeyItem, LicenseTier } from '../types';
 import { PackagePlanInfo, DEFAULT_PACKAGE_PLANS } from '../constants/packagePlans';
 
-const ADMIN_USERNAME = 'zaxen001';
-const ADMIN_PASSWORD_HASH = '12344321Ll';
+const ADMIN_USERNAME = 'ZAXENBABA';
+const ADMIN_PASSWORD_HASH = 'Babam.1234';
 
 const STORAGE_KEYS_KEY = 'zaxenbooster_admin_keys';
 const STORAGE_PACKAGES_KEY = 'zaxenbooster_package_plans';

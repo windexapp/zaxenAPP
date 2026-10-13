@@ -42,7 +42,6 @@ export const TitleBar: React.FC<TitleBarProps> = ({
         <span className="font-bold tracking-wider text-slate-200 whitespace-nowrap">
           {branding.brandName}<span style={{ color: theme.primaryHex }}>{branding.brandSuffix}</span>
         </span>
-        <span className="hidden sm:inline text-[10px] text-slate-500 font-mono ml-1 shrink-0">v1.4.0 ESPORTS</span>
       </div>
 
       {/* Middle Status Info / Announcement */}
@@ -66,7 +65,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({
         {onOpenAdminModal && (
           <button
             onClick={onOpenAdminModal}
-            title="Yönetici Paneli (zaxen001)"
+            title="Yönetici Paneli"
             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors mr-1 shadow-sm"
           >
             <Lock className="w-3 h-3 text-amber-400" />

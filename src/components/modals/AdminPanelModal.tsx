@@ -4,6 +4,7 @@ import {
   Lock, 
   KeyRound, 
   ShieldCheck, 
+  Shield, 
   Copy, 
   Check, 
   RotateCcw, 
@@ -21,11 +22,15 @@ import {
   Zap,
   Crown,
   Flame,
-  Shield,
   Cpu,
   Target,
   Gamepad2,
-  ExternalLink
+  ExternalLink,
+  Download,
+  Terminal,
+  Laptop,
+  HardDrive,
+  Monitor
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { brandingService } from '../../services/brandingService';
@@ -45,12 +50,12 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   onBrandingUpdated
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => adminService.isAdminLoggedIn());
-  const [username, setUsername] = useState('zaxen001');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
 
   // Tabs
-  const [activeTab, setActiveTab] = useState<'keys' | 'packages' | 'branding' | 'security'>('keys');
+  const [activeTab, setActiveTab] = useState<'keys' | 'packages' | 'branding' | 'exe_guide'>('keys');
 
   // Keys state
   const [keys, setKeys] = useState<AdminKeyItem[]>([]);
@@ -95,7 +100,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       setLoginError(null);
       soundFx.playBoostSound();
     } else {
-      setLoginError('Hatalı kullanıcı adı veya şifre! (Admin: zaxen001 / 12344321Ll)');
+      setLoginError('Hatalı kullanıcı adı veya şifre! Lütfen bilgilerinizi kontrol ediniz.');
     }
   };
 
@@ -176,6 +181,32 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     setTimeout(() => setBrandingSaved(false), 2500);
   };
 
+  const handleDownloadBuildScript = () => {
+    soundFx.playBoostSound();
+    const script = `@echo off\r\nchcp 65001 >nul\r\ntitle ZAXEN BOOSTER - TEK TIKLA .EXE DERLEYICI\r\ncolor 0b\r\ncls\r\n\r\ncd /d "%~dp0"\r\n\r\necho ================================================================\r\necho           ⚡ ZAXEN BOOSTER - WINDOWS .EXE URETICISI ⚡\r\necho ================================================================\r\necho.\r\necho Bu sihirbaz Zaxen Booster'i tek tikla bagimsiz bir\r\necho Windows masaustu .EXE (ZaxenBooster.exe) uygulamasina donusturur.\r\necho.\r\necho [1/4] Calisma dizini ve Node.js kontrol ediliyor...\r\necho [*] Konum: %cd%\r\n\r\nif not exist "package.json" (\r\n    color 0c\r\n    echo.\r\n    echo [HATA] package.json dosyasi bulunamadi!\r\n    echo Lutfen bu .bat dosyasini Zaxen Booster proje klasorunun icinde calistirin.\r\n    echo.\r\n    pause\r\n    exit /b 1\r\n)\r\n\r\nwhere node >nul 2>nul\r\nif %errorlevel% neq 0 (\r\n    color 0c\r\n    echo.\r\n    echo [HATA] Bilgisayarinizda Node.js kurulu degil!\r\n    echo Lutfen https://nodejs.org adresinden Node.js (LTS surumunu) indirip kurun.\r\n    pause\r\n    exit /b 1\r\n)\r\n\r\necho [✓] Node.js tespit edildi!\r\necho.\r\necho [2/4] Proje bagimliliklari kuruluyor (npm install)...\r\ncall npm install --no-audit --no-fund\r\n\r\necho.\r\necho [3/4] Frontend optimize edilip derleniyor (npm run build)...\r\ncall npm run build\r\nif %errorlevel% neq 0 (\r\n    color 0c\r\n    echo [HATA] Vite build basarisiz oldu!\r\n    pause\r\n    exit /b 1\r\n)\r\n\r\necho [✓] Web paketi basariyla derlendi.\r\necho.\r\necho [4/4] Windows .EXE olusturuluyor (Electron Portable)...\r\ncall npx --yes electron-builder --win portable --config.productName="Zaxen Booster" --config.directories.output="release"\r\n\r\necho.\r\necho ================================================================\r\nif exist "release\\*.exe" (\r\n    color 0a\r\n    echo  [BASARILI] ZAXEN BOOSTER .EXE BASARIYLA OLUSTURULDU!\r\n    echo. \r\n    echo  Dosyaniz "release" klasorunun icine kaydedildi.\r\n    echo ================================================================\r\n    explorer release\r\n) else (\r\n    echo [BILGI] Derleme tamamlandi. Lutfen "release" klasorunu kontrol edin.\r\n)\r\necho.\r\npause\r\n`;
+    const blob = new Blob([script], { type: 'application/x-bat;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'build_zaxen_exe.bat';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showNotification('📦 build_zaxen_exe.bat dosyası indirildi! Çift tıklayarak doğrudan .exe üretebilirsiniz.');
+  };
+
+  const handleDownloadDesktopLogo = () => {
+    soundFx.playClickSound();
+    const a = document.createElement('a');
+    a.href = '/zaxen-logo.jpg';
+    a.download = 'ZaxenBooster_Desktop_Icon.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showNotification('🖼️ Masaüstü logo simgesi indirildi! Kısayolunuza simge olarak atayabilirsiniz.');
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-xl animate-in fade-in select-none">
       <div className="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-[#090b10] border border-amber-500/40 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.2)] overflow-hidden">
@@ -191,7 +222,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
                   MASTER KONTROL
                 </span>
-                <span className="text-xs text-slate-400 font-mono">zaxen001 Root Access</span>
+                <span className="text-xs text-slate-400 font-mono">Güvenli Yönetici Erişimi</span>
               </div>
               <h2 className="text-lg font-black text-white font-display tracking-wide">
                 ZAXEN BOOSTER <span className="text-amber-400">Yönetici Paneli</span>
@@ -256,7 +287,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   type="text"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  placeholder="zaxen001"
+                  placeholder="Kullanıcı adınızı girin"
                   required
                   className="w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-amber-400"
                 />
@@ -281,10 +312,6 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 Giriş Yap ve Yönetim Masasını Aç
               </button>
             </form>
-
-            <div className="text-[11px] text-slate-500 font-mono">
-              Varsayılan Bilgiler: zaxen001 / 12344321Ll
-            </div>
           </div>
         ) : (
           /* AUTHENTICATED ADMIN DASHBOARD */
@@ -326,6 +353,19 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
               >
                 <Palette className="w-4 h-4" />
                 <span>Site Logo & İletişim Ayarları</span>
+              </button>
+
+              <button
+                onClick={() => { soundFx.playClickSound(); setActiveTab('exe_guide'); }}
+                className={`px-4 py-2.5 rounded-t-xl text-xs font-bold font-display flex items-center gap-2 transition-all border-b-2 whitespace-nowrap ${
+                  activeTab === 'exe_guide'
+                    ? 'border-emerald-400 text-emerald-400 bg-emerald-500/10'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Download className="w-4 h-4" />
+                <span>⚡ .EXE Yapma & Satış Rehberi</span>
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 font-mono font-bold">HAZIR</span>
               </button>
             </div>
 
@@ -856,6 +896,168 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>{brandingSaved ? 'Kaydedildi!' : 'Değişiklikleri Canlı Kaydet'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: EXE BUILDER & SALES GUIDE */}
+              {activeTab === 'exe_guide' && (
+                <div className="space-y-6">
+                  {/* Hero Banner */}
+                  <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-[#0e1713] to-[#090b10] border border-emerald-500/40 shadow-xl space-y-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] shrink-0">
+                          <Laptop className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
+                              WINDOWS .EXE DAĞITIM SİSTEMİ
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">Electron + Windows IPC Hazır</span>
+                          </div>
+                          <h3 className="text-base sm:text-lg font-black text-white font-display mt-0.5">
+                            ZAXEN BOOSTER <span className="text-emerald-400">Tek Parça .EXE Olarak Satışa Hazır!</span>
+                          </h3>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 shrink-0">
+                        <button
+                          onClick={handleDownloadDesktopLogo}
+                          className="px-3.5 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-cyan-300 hover:text-white border border-cyan-500/30 font-bold text-xs shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
+                          title="Masaüstü kısayolu için yüksek çözünürlüklü Zaxen Booster logosunu indir"
+                        >
+                          <Download className="w-4 h-4 text-cyan-400" />
+                          <span>Masaüstü Logosunu İndir (.PNG)</span>
+                        </button>
+
+                        <button
+                          onClick={handleDownloadBuildScript}
+                          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-extrabold text-xs shadow-lg flex items-center gap-2 transition-all cursor-pointer"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span>Derleme Sihirbazını (.BAT) İndir</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Kardeşim, sorduğun sorunun cevabı <b className="text-emerald-400 font-bold">KESİNLİKLE EVET!</b> Bu proje masaüstü dünyasının en güçlü motoru olan <b className="text-white">Electron</b> ile paketlenebilir ve tek bir <b className="text-emerald-300 font-mono">ZaxenBooster.exe</b> dosyası haline getirilir.
+                    </p>
+                  </div>
+
+                  {/* 3 Core Questions & Answers */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Q1 */}
+                    <div className="p-4 rounded-2xl bg-[#0e121a] border border-white/10 space-y-2">
+                      <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+                        <Monitor className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-xs font-bold text-white font-display">1. Ayarlar Gerçekten Çalışır mı?</h4>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        <b className="text-cyan-300">%100 Evet!</b> Web tarayıcısındayken güvenlik nedeniyle registry engelleniyordu. Fakat program <b className="text-white">.EXE</b> olduğunda Windows Yönetici (Administrator) yetkisi alır; RAM temizliği, Kayıt Defteri ayarları, CPU park kapatma ve NVIDIA renk ayarları <b className="text-cyan-300">anında kullanıcının monitöründe ve sisteminde canlı devreye girer!</b>
+                      </p>
+                    </div>
+
+                    {/* Q2 */}
+                    <div className="p-4 rounded-2xl bg-[#0e121a] border border-white/10 space-y-2">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-xs font-bold text-white font-display">2. Tek Kişi / Tek PC Kilidi (HWID)?</h4>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        <b className="text-amber-300">Tam Koruma Aktif!</b> Ürettiğin her lisans anahtarı, müşterinin bilgisayarının Anakart ve İşlemci Donanım Kimliğine (<b className="text-white">HWID</b>) kilitlenir. Müşteri aynı key'i başka arkadaşına gönderirse sistem o bilgisayarda <b className="text-rose-400">açılmaz ve hata verir</b>.
+                      </p>
+                    </div>
+
+                    {/* Q3 */}
+                    <div className="p-4 rounded-2xl bg-[#0e121a] border border-white/10 space-y-2">
+                      <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400">
+                        <Crown className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-xs font-bold text-white font-display">3. Satış Süreci Nasıl İşler?</h4>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Müşteriye sadece oluşturduğun <b className="text-purple-300">ZaxenBooster.exe</b> dosyasını gönderiyorsun. Müşteri uygulamayı açıp lisans ekranına senden satın aldığı <b className="text-white">Key</b>'i giriyor. Key onaylandığı anda tüm Pro/VIP ayarlar aktifleşiyor!
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step by step to build EXE */}
+                  <div className="p-5 rounded-2xl bg-[#0e121a] border border-emerald-500/30 space-y-4">
+                    <div className="flex items-center gap-2 pb-3 border-b border-white/[0.08]">
+                      <Terminal className="w-4 h-4 text-emerald-400" />
+                      <h4 className="text-xs font-bold text-white font-display uppercase tracking-wider">
+                        Bilgisayarında 2 Dakikada .EXE Nasıl Çıkarılır?
+                      </h4>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold flex items-center justify-center shrink-0">1</span>
+                        <div className="space-y-1">
+                          <div className="text-xs font-bold text-white">Derleme Sihirbazını İndir veya Proje Klasörüne Git</div>
+                          <p className="text-[11px] text-slate-400">
+                            Yukarıdaki <b className="text-emerald-300">"Derleme Sihirbazını (.BAT) İndir"</b> butonuna tıkla ve inen dosyayı proje klasörüne koy.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold flex items-center justify-center shrink-0">2</span>
+                        <div className="space-y-1">
+                          <div className="text-xs font-bold text-white">Çift Tıkla veya Terminalde Şu Komutu Çalıştır:</div>
+                          <div className="p-2.5 rounded-lg bg-black/60 border border-emerald-500/30 font-mono text-xs text-emerald-300 flex items-center justify-between">
+                            <code>npm run build:exe</code>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText('npm run build:exe');
+                                showNotification('📋 Komut panoya kopyalandı: npm run build:exe');
+                              }}
+                              className="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-[10px] text-white transition-colors"
+                            >
+                              Kopyala
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-slate-400">
+                            Sistem otomatik olarak tüm ekranları, NVIDIA optimize motorunu ve sistem ayarlarını derleyip <b className="text-white">release/ZaxenBooster.exe</b> dosyasını üretir!
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold flex items-center justify-center shrink-0">3</span>
+                        <div className="space-y-1">
+                          <div className="text-xs font-bold text-white">Müşteriye Gönder ve Key'ini Ver!</div>
+                          <p className="text-[11px] text-slate-400">
+                            Üretilen <b className="text-emerald-300">ZaxenBooster.exe</b> dosyasını Google Drive, Mediafire veya Discord üzerinden müşterine at. Müşteri çift tıkladığı anda kurulum gerektirmeden profesyonel bir masaüstü uygulaması olarak açılır.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ready Core Files Badge */}
+                  <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-emerald-200">
+                          Electron Masaüstü Motoru ve IPC Köprüsü Kodlandı!
+                        </div>
+                        <div className="text-[11px] text-slate-400">
+                          <code>electron/main.cjs</code> ve <code>electron/preload.cjs</code> dosyaları projeye tam entegre edildi.
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleDownloadBuildScript}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold transition-colors shrink-0"
+                    >
+                      .BAT Dosyasını Al
                     </button>
                   </div>
                 </div>

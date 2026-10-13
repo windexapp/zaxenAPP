@@ -2,13 +2,30 @@
   "name": "react-example",
   "private": true,
   "version": "0.0.0",
+  "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "electron:dev": "npx electron electron/main.cjs",
+    "build:exe": "vite build && npx electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.zaxen.booster",
+    "productName": "Zaxen Booster",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": "portable"
+    }
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

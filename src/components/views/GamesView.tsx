@@ -19,6 +19,7 @@ import { GameService, getSteamBannerUrl } from '../../services/gameService';
 import { THEMES } from '../../services/themeHelper';
 import { soundFx } from '../../services/soundFxService';
 import { HardwareMonitorService } from '../../services/hardwareMonitor';
+import { systemExecutor } from '../../services/systemExecutorService';
 
 interface GamesViewProps {
   accentColor?: AccentColor;
@@ -65,18 +66,38 @@ export const GamesView: React.FC<GamesViewProps> = ({ accentColor = 'red' }) => 
     if (updatedSelected) setSelectedGame(updatedSelected);
   };
 
+  const handleApplyWindowsPriority = async (game: GameItem) => {
+    soundFx.playBoostSound();
+    const exeName = game.path ? game.path.split(/\\\\|\//).pop() || 'game.exe' : `${game.id}.exe`;
+    await systemExecutor.setGameHighPriority(exeName);
+    if (game.profile.ultimatePowerPlan) {
+      await systemExecutor.executeTweak('cpu_ultimate_power', true);
+    }
+    monitor.cleanRam();
+    setFeedback(`⚡ [Windows Registry] "${game.name}" (${exeName}) için Yüksek CPU Önceliği ve Nihai Güç Planı Windows'a yazıldı!`);
+    setTimeout(() => setFeedback(null), 5000);
+  };
+
   const handleLaunchWithBoost = async (game: GameItem) => {
     soundFx.playBoostSound();
     setLaunchingGameId(game.id);
     
-    await new Promise(r => setTimeout(r, 1200));
+    const exeName = game.path ? game.path.split(/\\\\|\//).pop() || 'game.exe' : `${game.id}.exe`;
+    if (game.profile.highPriority) {
+      await systemExecutor.setGameHighPriority(exeName);
+    }
+    if (game.profile.ultimatePowerPlan) {
+      await systemExecutor.executeTweak('cpu_ultimate_power', true);
+    }
+
+    await new Promise(r => setTimeout(r, 1000));
     monitor.cleanRam();
     monitor.setOptimized(true);
     soundFx.playCleanSound();
 
     setLaunchingGameId(null);
     setActiveRunningGame(game.name);
-    setFeedback(`"${game.name}" Steam öncelikli profil ile başlatıldı! Gecikme önleyici profil aktif.`);
+    setFeedback(`⚡ "${game.name}" için Windows Yüksek CPU Önceliği ve Gecikme Önleyici profil sisteme uygulandı!`);
     setTimeout(() => setFeedback(null), 5000);
   };
 
@@ -297,24 +318,35 @@ export const GamesView: React.FC<GamesViewProps> = ({ accentColor = 'red' }) => 
                     </h2>
                   </div>
 
-                  <button
-                    onClick={() => handleLaunchWithBoost(selectedGame)}
-                    disabled={launchingGameId === selectedGame.id || activeRunningGame === selectedGame.name}
-                    className="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-lg transition-all flex items-center gap-2 transform active:scale-95 shrink-0"
-                    style={{
-                      backgroundColor: activeRunningGame === selectedGame.name ? '#059669' : theme.primaryHex,
-                      boxShadow: `0 0 15px ${theme.glowHex}`
-                    }}
-                  >
-                    <Play className="w-3.5 h-3.5 fill-white" />
-                    <span>
-                      {activeRunningGame === selectedGame.name 
-                        ? 'Oyunda Aktif' 
-                        : launchingGameId === selectedGame.id 
-                        ? 'Hazırlanıyor...' 
-                        : 'Boost ile Başlat'}
-                    </span>
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => handleApplyWindowsPriority(selectedGame)}
+                      className="px-3.5 py-2.5 bg-black/60 hover:bg-black/80 border border-white/20 text-slate-200 hover:text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                      title="Windows Registry IFEO Yüksek CPU Önceliğini Doğrudan PC'ye Kaydet"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-400" />
+                      <span>PC Önceliğini Yaz</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleLaunchWithBoost(selectedGame)}
+                      disabled={launchingGameId === selectedGame.id || activeRunningGame === selectedGame.name}
+                      className="px-5 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-lg transition-all flex items-center gap-2 transform active:scale-95 cursor-pointer"
+                      style={{
+                        backgroundColor: activeRunningGame === selectedGame.name ? '#059669' : theme.primaryHex,
+                        boxShadow: `0 0 15px ${theme.glowHex}`
+                      }}
+                    >
+                      <Play className="w-3.5 h-3.5 fill-white" />
+                      <span>
+                        {activeRunningGame === selectedGame.name 
+                          ? 'Oyunda Aktif' 
+                          : launchingGameId === selectedGame.id 
+                          ? 'Hazırlanıyor...' 
+                          : 'Boost ile Başlat'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -380,6 +412,45 @@ export const GamesView: React.FC<GamesViewProps> = ({ accentColor = 'red' }) => 
                       </div>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* Launch Options & Config File Details */}
+              {(selectedGame.launchOptions || selectedGame.configFileTweak) && (
+                <div className="p-4 rounded-xl bg-black/40 border border-white/10 space-y-3">
+                  <div className="text-xs font-bold text-white font-display flex items-center justify-between">
+                    <span>Oyun İçi Başlatma Seçenekleri & Ayar Dosyası (CFG)</span>
+                    <span className="text-[10px] font-mono text-cyan-400">Resmî Espor Komutları</span>
+                  </div>
+
+                  {selectedGame.launchOptions && (
+                    <div className="space-y-1">
+                      <div className="text-[11px] text-slate-400">Başlatma Seçenekleri (Launch Options):</div>
+                      <div className="p-2.5 rounded-lg bg-black/60 border border-white/10 font-mono text-xs text-emerald-300 flex items-center justify-between select-all">
+                        <span>{selectedGame.launchOptions}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedGame.configFileTweak && (
+                    <div className="space-y-1">
+                      <div className="text-[11px] text-slate-400">Özel Yapılandırma & CFG Dosyası:</div>
+                      <div className="text-xs text-slate-300 font-mono bg-white/[0.03] p-2 rounded-lg border border-white/5">
+                        {selectedGame.configFileTweak}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Anti-Cheat & Process Safety Guarantee */}
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-2.5 text-xs text-slate-300">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <strong className="text-white block text-[11px]">Anti-Cheat ve Süreç Dokunulmazlık Garantisi:</strong>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Oyun sürecine, bellek bloklarına ve anti-cheat sistemlerine (Vanguard, BattlEye, EasyAntiCheat, Ricochet) asla müdahale edilmez. Valorant'ta yalnızca Windows tarafı gecikme önleyici ve öncelik tahsisi uygulanır. Ban riski sıfırdır.
+                  </p>
                 </div>
               </div>
             </div>

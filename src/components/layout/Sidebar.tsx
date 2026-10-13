@@ -19,7 +19,11 @@ import {
   Target,
   MessageSquare,
   Lock,
-  ExternalLink
+  ExternalLink,
+  Sliders,
+  Activity,
+  HardDrive,
+  BookOpen
 } from 'lucide-react';
 import { TabType, LicenseState, AccentColor, AppBranding } from '../../types';
 import { THEMES } from '../../services/themeHelper';
@@ -68,8 +72,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const navItems: { id: TabType; label: string; icon: React.ReactNode; badge?: string; isGreen?: boolean }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'analysis', label: 'Analiz', icon: <Search className="w-4 h-4" />, badge: 'Tara' },
-    { id: 'boost', label: 'Boost', icon: <Zap className="w-4 h-4" /> },
+    { id: 'catalog', label: 'Ayar Kataloğu (600+)', icon: <Sliders className="w-4 h-4" />, badge: '600+' },
+    { id: 'games', label: 'Oyun Profilleri', icon: <Gamepad2 className="w-4 h-4" />, badge: 'CFG' },
+    { id: 'health', label: 'Sağlık Testi', icon: <Activity className="w-4 h-4" />, badge: 'Stres' },
+    { id: 'drivers', label: 'Sürücü & Disk', icon: <HardDrive className="w-4 h-4" />, badge: 'WHQL' },
+    { id: 'bios', label: 'BIOS & RAM (Pro)', icon: <BookOpen className="w-4 h-4" />, badge: 'Pro' },
     { 
       id: 'nvidia', 
       label: 'NVIDIA Renk & Ayar', 
@@ -81,9 +88,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ), 
       badge: 'GeForce' 
     },
-    { id: 'games', label: 'Oyunlar (Steam)', icon: <Gamepad2 className="w-4 h-4" /> },
+    { id: 'boost', label: 'Boost', icon: <Zap className="w-4 h-4" /> },
+    { id: 'analysis', label: 'Analiz', icon: <Search className="w-4 h-4" /> },
     { id: 'fps', label: 'FPS Testi', icon: <LineChart className="w-4 h-4" /> },
-    { id: 'tools', label: 'Araçlar & Espor', icon: <Wrench className="w-4 h-4" />, badge: 'Espor' },
+    { id: 'tools', label: 'Araçlar & Espor', icon: <Wrench className="w-4 h-4" /> },
     { id: 'backups', label: 'Geçmiş & Yedek', icon: <RotateCcw className="w-4 h-4" /> },
     { id: 'settings', label: 'Ayarlar', icon: <Settings className="w-4 h-4" /> },
   ];
@@ -252,7 +260,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="w-full py-1 text-[10px] font-mono text-slate-500 hover:text-amber-400 flex items-center justify-center gap-1.5 transition-colors"
           >
             <Lock className="w-3 h-3" />
-            <span>Admin Girişi (zaxen001)</span>
+            <span>Yönetici Masası</span>
           </button>
         )}
       </div>
