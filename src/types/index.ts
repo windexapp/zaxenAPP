@@ -221,6 +221,26 @@ declare global {
       isDesktop: boolean;
       platform: string;
       getHwid: () => Promise<string>;
+      getSystemSpecs?: () => Promise<{
+        success: boolean;
+        specs: {
+          cpuName: string;
+          cpuCores: number;
+          cpuThreads: number;
+          cpuSpeedGHz: number;
+          gpuName: string;
+          gpuVramGB: number;
+          ramTotalGB: number;
+          ramUsedGB: number;
+          ramFreeGB: number;
+          diskTotalGB: number;
+          diskFreeGB: number;
+          motherboard: string;
+          biosVersion: string;
+          osCaption: string;
+          osBuild: string;
+        } | null;
+      }>;
       executeCommand: (cmd: string) => Promise<{ success: boolean; output: string }>;
       cleanRam: () => Promise<{ success: boolean }>;
       writeRegistry: (options: { path: string; name: string; value: string | number; type?: string }) => Promise<{ success: boolean }>;

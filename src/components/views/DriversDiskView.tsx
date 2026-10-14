@@ -14,6 +14,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { soundFx } from '../../services/soundFxService';
+import { HardwareMonitorService } from '../../services/hardwareMonitor';
 
 interface InstalledDriver {
   id: string;
@@ -30,20 +31,26 @@ export const DriversDiskView: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
+  const monitor = HardwareMonitorService.getInstance();
+  const metrics = monitor.getMetrics();
+  const gpuModel = metrics.gpu.model || 'NVIDIA / AMD Grafik Sürücüsü';
+  const isAmdGpu = /amd|radeon/i.test(gpuModel);
+  const isAmdCpu = /amd|ryzen/i.test(metrics.cpu.model);
+
   const [drivers] = useState<InstalledDriver[]>([
     {
-      id: 'gpu_nvidia',
+      id: 'gpu_device',
       category: 'gpu',
-      device: 'NVIDIA GeForce RTX Grafik Sürücüsü (DCH)',
-      currentVersion: 'v552.22 (Game Ready WHQL)',
+      device: `${gpuModel} Sürücüsü`,
+      currentVersion: isAmdGpu ? 'v24.3.1 (Adrenalin WHQL)' : 'v552.22 (Game Ready WHQL)',
       status: 'Güncel',
-      officialUrl: 'https://www.nvidia.com/drivers',
-      releaseDate: 'Resmî NVIDIA Dijital İmzalı'
+      officialUrl: isAmdGpu ? 'https://www.amd.com/support' : 'https://www.nvidia.com/drivers',
+      releaseDate: 'Resmî Dijital İmzalı'
     },
     {
       id: 'audio_realtek',
       category: 'audio',
-      device: 'Realtek High Definition Audio Driver',
+      device: 'Realtek / High Definition Espor Ses Sürücüsü',
       currentVersion: 'v6.0.9239.1',
       status: 'Sorunsuz',
       officialUrl: 'https://www.realtek.com',
@@ -52,7 +59,7 @@ export const DriversDiskView: React.FC = () => {
     {
       id: 'net_intel',
       category: 'network',
-      device: 'Intel / Realtek 2.5GbE Gaming LAN Ethernet Controller',
+      device: 'Gigabit / 2.5GbE Gaming LAN Ethernet Controller',
       currentVersion: 'v10.68.815.2023',
       status: 'Sorunsuz',
       officialUrl: 'https://www.intel.com',
@@ -61,10 +68,10 @@ export const DriversDiskView: React.FC = () => {
     {
       id: 'chipset_amd_intel',
       category: 'chipset',
-      device: 'Anakart Yonga Seti (Chipset) & PCI Express Bus',
+      device: `${isAmdCpu ? 'AMD Ryzen' : 'Intel'} Yonga Seti (Chipset) & PCIe Bus`,
       currentVersion: 'v6.02.07.115',
       status: 'Güncel',
-      officialUrl: 'https://www.amd.com',
+      officialUrl: isAmdCpu ? 'https://www.amd.com' : 'https://www.intel.com',
       releaseDate: 'İşlemci Güç Yönetimi Destekli'
     }
   ]);

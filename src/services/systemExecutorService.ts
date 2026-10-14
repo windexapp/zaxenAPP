@@ -290,33 +290,40 @@ export class SystemExecutorService {
     return logItem;
   }
 
+  public async checkIsAdmin(): Promise<boolean> {
+    if (this.isDesktopApp() && window.desktopApi?.checkAdmin) {
+      try {
+        const res = await window.desktopApi.checkAdmin();
+        return Boolean(res?.isAdmin);
+      } catch {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
-   * Seçilen tüm komutları tek seferde Windows'ta uygular
+   * Seçilen tüm komutları tek tek güvenle Windows'ta uygular ve her birini doğrular
    */
   public async executeBatch(tweakIds: string[]): Promise<{ total: number; successCount: number; script: string }> {
     const commandsToRun: string[] = [];
-    
-    tweakIds.forEach(id => {
+    let successCount = 0;
+
+    for (const id of tweakIds) {
+      const res = await this.executeTweak(id, true);
+      if (res.success) {
+        successCount++;
+      }
       const def = TWEAK_COMMANDS[id];
       if (def) {
         commandsToRun.push(def.applyPowerShell);
-      }
-    });
-
-    const fullScript = commandsToRun.join(';\n');
-
-    if (this.isDesktopApp() && window.desktopApi) {
-      try {
-        await window.desktopApi.executeCommand(fullScript);
-      } catch {
-        // continue
       }
     }
 
     return {
       total: tweakIds.length,
-      successCount: tweakIds.length,
-      script: fullScript
+      successCount,
+      script: commandsToRun.join(';\r\n')
     };
   }
 
@@ -324,7 +331,8 @@ export class SystemExecutorService {
    * Belirli bir oyun için Windows Registry Yüksek CPU Önceliği (High Priority IFEO) atar
    */
   public async setGameHighPriority(exeName: string): Promise<boolean> {
-    const psCmd = `reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\${exeName}\\PerfOptions" /v "CpuPriorityClass" /t REG_DWORD /d 3 /f`;
+    const cleanExe = exeName.replace(/^.*[\\\/]/, '');
+    const psCmd = `reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\${cleanExe}\\PerfOptions" /v "CpuPriorityClass" /t REG_DWORD /d 3 /f`;
     if (this.isDesktopApp() && window.desktopApi) {
       try {
         const res = await window.desktopApi.executeCommand(psCmd);

@@ -36,6 +36,7 @@ export class HardwareMonitorService {
   private intervalId: any = null;
   private isOptimizedState: boolean = false;
   private memoryFreedGB: number = 0;
+  public realHardwareSpecs: any = null;
 
   private constructor() {
     const cores = typeof navigator !== 'undefined' ? (navigator.hardwareConcurrency || 12) : 12;
@@ -91,7 +92,59 @@ export class HardwareMonitorService {
       },
     };
 
+    // Gerçek donanımı anında tara ve uygula
+    this.initRealHardware();
     this.startMonitoring();
+  }
+
+  public async initRealHardware(): Promise<void> {
+    if (typeof window !== 'undefined' && window.desktopApi?.getSystemSpecs) {
+      try {
+        const res = await window.desktopApi.getSystemSpecs();
+        if (res && res.success && res.specs) {
+          const s = res.specs;
+          this.realHardwareSpecs = s;
+
+          if (s.cpuName) {
+            this.metrics.cpu.model = s.cpuName;
+          }
+          if (s.cpuCores) {
+            this.metrics.cpu.cores = s.cpuCores;
+          }
+          if (s.cpuSpeedGHz) {
+            this.metrics.cpu.clockSpeedGHz = s.cpuSpeedGHz;
+          }
+          if (s.gpuName) {
+            this.metrics.gpu.model = s.gpuName;
+          }
+          if (s.gpuVramGB) {
+            this.metrics.gpu.vramTotalGB = s.gpuVramGB;
+          }
+          if (s.ramTotalGB) {
+            this.metrics.ram.totalGB = s.ramTotalGB;
+          }
+          if (s.ramUsedGB) {
+            this.metrics.ram.usedGB = s.ramUsedGB;
+            this.metrics.ram.freeGB = s.ramFreeGB;
+            this.metrics.ram.usagePercent = Math.round((s.ramUsedGB / s.ramTotalGB) * 100);
+          }
+          if (s.diskTotalGB) {
+            this.metrics.disk.totalGB = s.diskTotalGB;
+            this.metrics.disk.freeGB = s.diskFreeGB;
+            this.metrics.disk.usedGB = Number((s.diskTotalGB - s.diskFreeGB).toFixed(1));
+            this.metrics.disk.usagePercent = Math.round((this.metrics.disk.usedGB / s.diskTotalGB) * 100);
+          }
+
+          this.notify();
+        }
+      } catch (err) {
+        console.warn('Real hardware detection fallback active:', err);
+      }
+    }
+  }
+
+  public getRealSpecs(): any {
+    return this.realHardwareSpecs;
   }
 
   public static getInstance(): HardwareMonitorService {

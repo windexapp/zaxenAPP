@@ -11,7 +11,6 @@ import {
   Server, 
   Sparkles,
   Terminal,
-  Download,
   Check,
   ChevronDown,
   ChevronUp,
@@ -307,13 +306,6 @@ export const CatalogView: React.FC<CatalogViewProps> = () => {
 
     const result = await systemExecutor.executeTweak(id, nextState);
     setRecentLogs(systemExecutor.getRecentLogs());
-
-    if (result.isDesktopExecuted) {
-      setFeedback(`⚡ [Masaüstü Windows] "${target.title}" doğrudan sisteme uygulandı!`);
-    } else {
-      setFeedback(`⚡ [Windows Yürütücü] "${target.title}" için PowerShell komutu hazırlandı ve işlendi!`);
-    }
-    setTimeout(() => setFeedback(null), 3500);
   };
 
   const handleApplyAllRecommended = async () => {
@@ -331,25 +323,6 @@ export const CatalogView: React.FC<CatalogViewProps> = () => {
     } else {
       setFeedback('⚡ [Windows Entegratörü] 600+ Ayar Kataloğundan tüm "Güvenli" optimizasyonlar başarıyla sisteme aktarıldı!');
     }
-    setTimeout(() => setFeedback(null), 4000);
-  };
-
-  const handleDownloadBatBackup = () => {
-    soundFx.playBoostSound();
-    const activeIds = tweaks.filter(t => t.enabled).map(t => t.id);
-    const script = systemExecutor.generateAllBatFile(activeIds);
-    
-    const blob = new Blob([script], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Zaxen_Windows_Optimizasyon_Paketi.bat';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    setFeedback('💾 Seçili tüm optimizasyonlar tek tıkla çalıştırılabilir Windows .BAT paketi olarak indirildi.');
     setTimeout(() => setFeedback(null), 4000);
   };
 
@@ -399,15 +372,7 @@ export const CatalogView: React.FC<CatalogViewProps> = () => {
             className="px-3 py-1 rounded-xl bg-black/40 hover:bg-black/60 border border-white/10 text-[11px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer text-slate-300 hover:text-white"
           >
             <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Komut Konsolu</span>
-          </button>
-          <button
-            onClick={handleDownloadBatBackup}
-            className="px-3 py-1 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-[11px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer text-slate-300 hover:text-white"
-            title="Aktif ayarları Windows .BAT olarak kaydet"
-          >
-            <Download className="w-3.5 h-3.5 text-amber-400" />
-            <span>.BAT Paketi Al</span>
+            <span>Sistem Günlüğü</span>
           </button>
         </div>
       </div>
@@ -606,9 +571,16 @@ export const CatalogView: React.FC<CatalogViewProps> = () => {
                   <span>Etki Skoru:</span>
                   <span className="font-mono text-cyan-400 font-bold">{'★'.repeat(tweak.impactScore)}{'☆'.repeat(5 - tweak.impactScore)}</span>
                 </span>
-                <span className={`font-mono text-[10px] font-bold ${tweak.enabled ? 'text-emerald-400' : 'text-slate-500'}`}>
-                  {tweak.enabled ? '● PC\'de Aktif' : '○ Devre Dışı'}
-                </span>
+                {tweak.enabled ? (
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] font-bold shadow-[0_0_12px_rgba(16,185,129,0.25)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>● PC'DE AKTİF</span>
+                  </div>
+                ) : (
+                  <span className="font-mono text-[10px] text-slate-500 font-medium">
+                    ○ Devre Dışı
+                  </span>
+                )}
               </div>
             </div>
           );
@@ -665,13 +637,6 @@ export const CatalogView: React.FC<CatalogViewProps> = () => {
               <span className="text-[11px] text-slate-400">
                 {isDesktop ? '🟢 Masaüstü (.EXE) Doğrudan Windows Bağlantısı' : '🌐 Web Önizleme Simülasyonu (.EXE Derlendiğinde Doğrudan Windows Üzerinde Çalışır)'}
               </span>
-              <button
-                onClick={handleDownloadBatBackup}
-                className="px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-cyan-500/30"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Tüm Komutları .BAT Olarak Kaydet</span>
-              </button>
             </div>
           </div>
         </div>

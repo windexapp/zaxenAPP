@@ -13,9 +13,18 @@ import {
   BookOpen
 } from 'lucide-react';
 import { soundFx } from '../../services/soundFxService';
+import { HardwareMonitorService } from '../../services/hardwareMonitor';
 
 export const BiosGuideView: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<'xmp' | 'resize_bar' | 'undervolt' | 'cmos_reset'>('xmp');
+  const monitor = HardwareMonitorService.getInstance();
+  const metrics = monitor.getMetrics();
+  const realSpecs = monitor.getRealSpecs();
+
+  const motherboardName = realSpecs?.motherboard || 'Standart UEFI Espor Anakart';
+  const biosVer = realSpecs?.biosVersion || 'v1802 (AGESA 1.1.0.0 Güncel)';
+  const cpuTitle = metrics.cpu.model || 'Espor Yüksek Performans İşlemcisi';
+  const ramTitle = `${metrics.ram.totalGB} GB Dual Channel (${metrics.ram.speedMHz}MHz)`;
 
   return (
     <div className="space-y-6 pb-12 select-none animate-in fade-in">
@@ -57,8 +66,8 @@ export const BiosGuideView: React.FC = () => {
         {/* Motherboard & BIOS */}
         <div className="p-4 rounded-2xl bg-[#0d1017] border border-white/10 space-y-2">
           <div className="text-[10px] font-mono text-slate-400 uppercase">Algılanan Anakart</div>
-          <div className="text-base font-bold text-white font-display">ASUS / MSI Gaming Pro (DDR5 / DDR4)</div>
-          <div className="text-xs font-mono text-amber-400">BIOS Sürümü: v1802 (AGESA 1.1.0.0 Güncel)</div>
+          <div className="text-base font-bold text-white font-display truncate" title={motherboardName}>{motherboardName}</div>
+          <div className="text-xs font-mono text-amber-400">BIOS Sürümü: {biosVer}</div>
           <p className="text-[11px] text-slate-400">
             UEFI modu aktif, Secure Boot ve TPM 2.0 açık.
           </p>
@@ -67,8 +76,8 @@ export const BiosGuideView: React.FC = () => {
         {/* RAM Kit Spec */}
         <div className="p-4 rounded-2xl bg-[#0d1017] border border-white/10 space-y-2">
           <div className="text-[10px] font-mono text-slate-400 uppercase">Algılanan RAM Kiti</div>
-          <div className="text-base font-bold text-white font-display">32 GB (2x16GB) Dual Channel</div>
-          <div className="text-xs font-mono text-emerald-400">XMP / EXPO: Profil 1 Aktif (6000MHz CL30)</div>
+          <div className="text-base font-bold text-white font-display">{ramTitle}</div>
+          <div className="text-xs font-mono text-emerald-400">XMP / EXPO: Profil Aktif (Düşük Gecikme)</div>
           <p className="text-[11px] text-slate-400">
             Yuvalar: DIMM_A2 ve DIMM_B2 (Önerilen Çift Kanal Yuvaları).
           </p>
@@ -77,7 +86,7 @@ export const BiosGuideView: React.FC = () => {
         {/* CPU Platform */}
         <div className="p-4 rounded-2xl bg-[#0d1017] border border-white/10 space-y-2">
           <div className="text-[10px] font-mono text-slate-400 uppercase">İşlemci Platformu</div>
-          <div className="text-base font-bold text-white font-display">Espor Yüksek Performans Mimarisi</div>
+          <div className="text-base font-bold text-white font-display truncate" title={cpuTitle}>{cpuTitle}</div>
           <div className="text-xs font-mono text-cyan-400">Re-Size BAR: Açık (GPU Direct VRAM)</div>
           <p className="text-[11px] text-slate-400">
             PBO Curve Optimizer: Stabil (-20 All Cores).

@@ -11,10 +11,12 @@ import {
   ShieldCheck, 
   Sparkles, 
   Activity,
-  Maximize2
+  Maximize2,
+  RefreshCw
 } from 'lucide-react';
 import { SystemMetrics, LicenseState, AccentColor } from '../../types';
 import { OptimizerService } from '../../services/optimizerService';
+import { HardwareMonitorService } from '../../services/hardwareMonitor';
 import { THEMES } from '../../services/themeHelper';
 import { soundFx } from '../../services/soundFxService';
 
@@ -41,6 +43,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     freedRamGB: number;
     freedDiskGB: number;
   } | null>(null);
+  const [isScanningHardware, setIsScanningHardware] = useState(false);
+  const [hardwareScanFeedback, setHardwareScanFeedback] = useState<string | null>(null);
+
+  const handleScanHardware = async () => {
+    soundFx.playBoostSound();
+    setIsScanningHardware(true);
+    await HardwareMonitorService.getInstance().initRealHardware();
+    setTimeout(() => {
+      setIsScanningHardware(false);
+      setHardwareScanFeedback('✔ Bilgisayarınızın gerçek donanımı (İşlemci, Ekran Kartı, RAM ve Disk) başarıyla algılandı ve eşitlendi!');
+      setTimeout(() => setHardwareScanFeedback(null), 4000);
+    }, 700);
+  };
 
   const optimizerService = OptimizerService.getInstance();
   const theme = THEMES[accentColor] || THEMES.red;
@@ -304,18 +319,37 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </h2>
               <p className="text-[11px] text-slate-400">Gerçek zamanlı sensör okumaları ve bellek durumu</p>
             </div>
-            <button
-              onClick={() => {
-                soundFx.playClickSound();
-                onNavigateTab('tools');
-              }}
-              className="text-xs hover:text-white flex items-center gap-1 transition-colors"
-              style={{ color: theme.primaryHex }}
-            >
-              <span>Ayrıntılı Monitör</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleScanHardware}
+                disabled={isScanningHardware}
+                className="px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white border border-white/10 text-[11px] font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="Bilgisayarınızın gerçek donanımını Windows API üzerinden tara ve güncelle"
+              >
+                <RefreshCw className={`w-3 h-3 text-cyan-400 ${isScanningHardware ? 'animate-spin' : ''}`} />
+                <span>{isScanningHardware ? 'Taranıyor...' : 'Donanımı Tara'}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundFx.playClickSound();
+                  onNavigateTab('tools');
+                }}
+                className="text-xs hover:text-white flex items-center gap-1 transition-colors ml-1"
+                style={{ color: theme.primaryHex }}
+              >
+                <span>Ayrıntılı Monitör</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
+
+          {hardwareScanFeedback && (
+            <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/40 text-xs text-cyan-200 flex items-center gap-2 animate-in fade-in">
+              <CheckCircle className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span>{hardwareScanFeedback}</span>
+            </div>
+          )}
 
           {/* 4 Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

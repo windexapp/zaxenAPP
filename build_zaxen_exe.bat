@@ -64,7 +64,7 @@ echo [✓] Web paketi basariyla derlendi (dist klasoru olusturuldu).
 echo.
 echo [4/4] Windows .EXE olusturuluyor (Electron Portable)...
 echo Lutfen bekleyin, bu islem ilk calistirmada 1-2 dakika surebilir...
-call npx --yes electron-builder --win portable --config.productName="Zaxen Booster" --config.directories.output="release"
+call npx --yes electron-builder --win portable
 
 echo.
 echo ================================================================

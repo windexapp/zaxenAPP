@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Minus, Square, X, ShieldCheck, Zap, Minimize2, Lock } from 'lucide-react';
+import { ShieldCheck, Zap, Minimize2, Lock } from 'lucide-react';
 import { THEMES } from '../../services/themeHelper';
 import { brandingService } from '../../services/brandingService';
 import { AccentColor, AppBranding } from '../../types';
@@ -18,7 +18,6 @@ export const TitleBar: React.FC<TitleBarProps> = ({
   onToggleHudMode,
   onOpenAdminModal
 }) => {
-  const [isMaximized, setIsMaximized] = useState(false);
   const theme = THEMES[accentColor] || THEMES.red;
   const [branding, setBranding] = useState<AppBranding>(() => brandingService.getBranding());
 
@@ -60,50 +59,30 @@ export const TitleBar: React.FC<TitleBarProps> = ({
         </div>
       </div>
 
-      {/* Window Controls + Admin + Mini HUD Button */}
-      <div className="flex items-center gap-1.5 -mr-1">
-        {onOpenAdminModal && (
-          <button
-            onClick={onOpenAdminModal}
-            title="Yönetici Paneli"
-            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors mr-1 shadow-sm"
-          >
-            <Lock className="w-3 h-3 text-amber-400" />
-            <span className="hidden md:inline">Admin</span>
-          </button>
-        )}
+        {/* Admin and Mini HUD Controls */}
+        <div className="flex items-center gap-1.5">
+          {onOpenAdminModal && (
+            <button
+              onClick={onOpenAdminModal}
+              title="Yönetici Paneli"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors shadow-sm cursor-pointer"
+            >
+              <Lock className="w-3 h-3 text-amber-400" />
+              <span className="hidden md:inline">Admin</span>
+            </button>
+          )}
 
-        {onToggleHudMode && (
-          <button
-            onClick={onToggleHudMode}
-            title="Kompakt Mini HUD Moduna Geç"
-            className="hidden md:flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-white/[0.04] hover:bg-white/[0.1] text-slate-300 hover:text-white border border-white/[0.08] transition-colors mr-1"
-          >
-            <Minimize2 className="w-3 h-3" style={{ color: theme.primaryHex }} />
-            <span>Mini HUD</span>
-          </button>
-        )}
-
-        <button 
-          title="Simge durumuna küçült" 
-          className="w-8 h-7 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors"
-        >
-          <Minus className="w-3.5 h-3.5" />
-        </button>
-        <button 
-          title={isMaximized ? "Önceki Boyut" : "Ekranı Kapla"} 
-          onClick={() => setIsMaximized(!isMaximized)}
-          className="w-8 h-7 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors"
-        >
-          <Square className="w-3.5 h-3.5" />
-        </button>
-        <button 
-          title="Kapat" 
-          className="w-8 h-7 flex items-center justify-center text-slate-400 hover:text-white hover:bg-rose-600 rounded transition-colors"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
-      </div>
+          {onToggleHudMode && (
+            <button
+              onClick={onToggleHudMode}
+              title="Kompakt Mini HUD Moduna Geç"
+              className="hidden md:flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/[0.04] hover:bg-white/[0.1] text-slate-300 hover:text-white border border-white/[0.08] transition-colors cursor-pointer"
+            >
+              <Minimize2 className="w-3 h-3" style={{ color: theme.primaryHex }} />
+              <span>Mini HUD</span>
+            </button>
+          )}
+        </div>
     </header>
   );
 };
